@@ -64,8 +64,11 @@ function createListItem(applicant) {
   viewButton.addEventListener("click", function () {
     state.selectedApplicant = applicant.name
     createInfoBox(applicant)
-    findHomeworld(applicant.homeworld)
+    if (condition) {
+      findHomeworld(applicant.homeworld)
+    }
     // we need to append info to infoSection variable
+    // Object.values()
   })
 
   applicantLi.append(viewButton)
