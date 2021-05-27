@@ -14,6 +14,7 @@ let state = {
   planets: [],
   applicants: [],
   selectedApplicant: null,
+  immigrationDetailsArray: [],
 }
 
 // this is the master fetch, the other fetches are pado wan
@@ -63,16 +64,13 @@ function createListItem(applicant) {
 
   viewButton.addEventListener("click", function () {
     state.selectedApplicant = applicant.name
-    createInfoBox(applicant)
-<<<<<<< HEAD
-    if (condition) {
-=======
-    if (!state.planets.find( planet => planet.url === applicant.homeworld)) {
->>>>>>> 92e54c79e67926abf55d4c299afe3ff5a39ad63c
-      findHomeworld(applicant.homeworld)
+
+    if (!state.planets.find(planet => planet.url === applicant.homeworld)) {
+      findHomeworld(applicant)
     }
     // we need to append info to infoSection variable
     // Object.values()
+    createImmigrationForm(applicant.name)
   })
 
   applicantLi.append(viewButton)
@@ -107,13 +105,121 @@ function createInfoBox(applicant) {
   height.innerText = `Height: ${applicant.height}`
 
   const mass = document.createElement("h3")
-  mass.innerText = `Mass ${applicant.mass}`
+  mass.innerText = `Mass: ${applicant.mass}`
 
-  // const homeworld = document.createElement("h3")
-  // homeworld.innerText = `Homeworld ${applicant.homeworld}`
+  const homePlanet = state.planets.find(
+    planet => planet.url === applicant.homeworld
+  )
+  const homeworld = document.createElement("h3")
+  homeworld.innerText = `Homeworld: ${homePlanet.name}`
 
-  infoBox.append(boxTitle, gender, DOB, height, mass)
+  infoBox.append(boxTitle, gender, DOB, height, mass, homeworld)
   infoSection.append(infoBox)
+}
+
+function createImmigrationForm(name) {
+  actionSection.innerHTML = ""
+  const formTitle = document.createElement("form")
+  formTitle.innerText = "IMMIGRATION FORM"
+  formTitle.setAttribute("class", "immigration-form")
+
+  const immigrationFormName = document.createElement("h4")
+  immigrationFormName.setAttribute("class", "applicant-name")
+  immigrationFormName.innerText = `Applicant Name: ${name}`
+
+  const destinantionLabel = document.createElement("label")
+  destinantionLabel.setAttribute("for", "destination")
+  destinantionLabel.innerText = "Destination"
+
+  const travelPurposeLabel = document.createElement("label")
+  travelPurposeLabel.setAttribute("for", "travel-purpose")
+  travelPurposeLabel.innerText = "Travel purpose:"
+
+  const travelPurposeSelect = document.createElement("select")
+  travelPurposeSelect.setAttribute("name", "travel-purpose")
+  travelPurposeSelect.setAttribute("id", "travel-purpose")
+
+  const travelPurposePleaseSelect = document.createElement("option")
+  travelPurposePleaseSelect.innerText = "Please select..."
+
+  const travelPurposeBusiness = document.createElement("option")
+  travelPurposeBusiness.innerText = "Business"
+  travelPurposeBusiness.setAttribute("value", "Business")
+
+  const travelPurposeVacation = document.createElement("option")
+  travelPurposeVacation.setAttribute("value", "Vacation")
+  travelPurposeVacation.innerText = "Vacation"
+
+  travelPurposeSelect.append(
+    travelPurposePleaseSelect,
+    travelPurposeBusiness,
+    travelPurposeVacation
+  )
+
+  const destinationInput = document.createElement("input")
+  destinationInput.setAttribute("name", "destination")
+  destinationInput.setAttribute("id", "destination")
+  destinationInput.setAttribute("type", "text")
+  destinationInput.required = true
+
+  const terroristRadioLabel = document.createElement("label")
+  terroristRadioLabel.setAttribute("for", "terrorist")
+  terroristRadioLabel.innerText = "Terrorist activity:"
+
+  const terroristRadioYesElLabel = document.createElement("label")
+  terroristRadioYesElLabel.innerText = "Yes"
+
+  const terroristRadioYesEl = document.createElement("input")
+  terroristRadioYesEl.setAttribute("type", "radio")
+  terroristRadioYesEl.setAttribute("id", "terrorist")
+  terroristRadioYesEl.setAttribute("name", "terrorist")
+  terroristRadioYesEl.setAttribute("value", "Yes")
+
+  terroristRadioYesElLabel.append(terroristRadioYesEl)
+
+  const terroristRadioNoElLabel = document.createElement("label")
+  terroristRadioNoElLabel.innerText = "No"
+
+  const terroristRadioNoEl = document.createElement("input")
+  terroristRadioNoEl.setAttribute("type", "radio")
+  terroristRadioNoEl.setAttribute("id", "terrorist")
+  terroristRadioNoEl.setAttribute("name", "terrorist")
+  terroristRadioNoEl.setAttribute("value", "No")
+  terroristRadioNoEl.innerText = "No"
+
+  terroristRadioNoElLabel.append(terroristRadioNoEl)
+
+  const acceptBtn = document.createElement("button")
+  acceptBtn.setAttribute("class", "form accept-button")
+  acceptBtn.setAttribute("type", "submit")
+  acceptBtn.setAttribute("class", "accept-button")
+  acceptBtn.innerText = "Accept ->"
+
+  formTitle.addEventListener("submit", function (event) {
+    event.preventDefault()
+
+    const immigrationDetails = {
+      applicantName: state.selectedApplicant,
+      destination: destinationInput.value,
+      "travel-purpose": travelPurposeSelect.value,
+      "terrorist-activity": formTitle.terrorist.value,
+    }
+
+    //  LEFT OFF HERE. PUSH TO STATE.
+  })
+
+  formTitle.append(
+    immigrationFormName,
+    destinantionLabel,
+    destinationInput,
+    travelPurposeLabel,
+    travelPurposeSelect,
+    terroristRadioLabel,
+    terroristRadioYesElLabel,
+    terroristRadioNoElLabel,
+    acceptBtn
+  )
+  actionSection.append(formTitle)
 }
 
 function render() {
@@ -123,8 +229,11 @@ function render() {
   createsListItems()
 }
 
-function findHomeworld(homeworldURL) {
-  fetch(homeworldURL)
+function findHomeworld(applicant) {
+  fetch(applicant.homeworld)
     .then(resp => resp.json())
-    .then(data => (state.planets = [...state.planets, data]))
+    .then(data => {
+      state.planets = [...state.planets, data]
+      createInfoBox(applicant)
+    })
 }
