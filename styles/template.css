@@ -90,8 +90,9 @@ main {
 }
 
 .info-box {
+  width: 300px;
   border: 3px dotted #ffffff;
-  padding: 5px;
+  padding: 8px 15px;
 }
 
 /* LIST SECTION */
