@@ -64,7 +64,9 @@ function createListItem(applicant) {
   viewButton.addEventListener("click", function () {
     state.selectedApplicant = applicant.name
     createInfoBox(applicant)
-    findHomeworld(applicant.homeworld)
+    if (!state.planets.find( planet => planet.url === applicant.homeworld)) {
+      findHomeworld(applicant.homeworld)
+    }
     // we need to append info to infoSection variable
   })
 
