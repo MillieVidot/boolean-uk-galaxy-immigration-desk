@@ -68,9 +68,12 @@ function createListItem(applicant) {
     if (!state.planets.find(planet => planet.url === applicant.homeworld)) {
       findHomeworld(applicant)
     }
+
+    let immigrationFormName = document.querySelector(`.applicant-name`)
+    immigrationFormName.innerText = `Applicant Name: ${applicant.name}`
     // we need to append info to infoSection variable
     // Object.values()
-    createImmigrationForm(applicant.name)
+    
   })
 
   applicantLi.append(viewButton)
@@ -125,7 +128,7 @@ function createImmigrationForm(name) {
 
   const immigrationFormName = document.createElement("h4")
   immigrationFormName.setAttribute("class", "applicant-name")
-  immigrationFormName.innerText = `Applicant Name: ${name}`
+  immigrationFormName.innerText = `Applicant Name: `
 
   const destinantionLabel = document.createElement("label")
   destinantionLabel.setAttribute("for", "destination")
@@ -193,7 +196,7 @@ function createImmigrationForm(name) {
   acceptBtn.setAttribute("class", "form accept-button")
   acceptBtn.setAttribute("type", "submit")
   acceptBtn.setAttribute("class", "accept-button")
-  acceptBtn.innerText = "Accept ->"
+  acceptBtn.innerHTML = `Accept &#x02192`
 
   formTitle.addEventListener("submit", function (event) {
     event.preventDefault()
@@ -204,6 +207,12 @@ function createImmigrationForm(name) {
       "travel-purpose": travelPurposeSelect.value,
       "terrorist-activity": formTitle.terrorist.value,
     }
+    
+    state.immigrationDetailsArray = immigrationDetails
+    console.log(`state.immigrationDetailsArray: `, state)
+    // setState({
+    //   immigrationDetailsArray: [...state.immigrationDetailsArray, immigrationDetails]
+    // })
 
     //  LEFT OFF HERE. PUSH TO STATE.
   })
@@ -222,10 +231,15 @@ function createImmigrationForm(name) {
   actionSection.append(formTitle)
 }
 
+function setState (newState) {
+  state = {...state, ...newState}
+}
+
 function render() {
   // const main = document.querySelector("main")
   // main.innerHTML = ""
   createList()
+  createImmigrationForm()
   createsListItems()
 }
 
@@ -234,6 +248,7 @@ function findHomeworld(applicant) {
     .then(resp => resp.json())
     .then(data => {
       state.planets = [...state.planets, data]
+      console.log(state.planets)
       createInfoBox(applicant)
     })
 }
