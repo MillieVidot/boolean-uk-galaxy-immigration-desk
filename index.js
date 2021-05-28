@@ -25,8 +25,8 @@ function getPeople() {
     //     return response.json()
     // }
     .then(function (peopleFromServer) {
-      state.applicants = peopleFromServer
-      console.log(`people from server`, peopleFromServer)
+      state.applicants = peopleFromServer.results
+      console.log(`people from server`, peopleFromServer.results)
       //HERE WE HAVE THE PEOPLE
       // getPlanets()
       //HERE WE HAVE ALSO THE PLANETS
@@ -63,17 +63,17 @@ function createListItem(applicant) {
   viewButton.innerText = "VIEW"
 
   viewButton.addEventListener("click", function () {
-    state.selectedApplicant = applicant.name
+    state.selectedApplicant = applicant
+    createImmigrationForm(applicant)
 
     if (!state.planets.find(planet => planet.url === applicant.homeworld)) {
       findHomeworld(applicant)
-    }
+    } else createInfoBox(applicant)
 
-    let immigrationFormName = document.querySelector(`.applicant-name`)
-    immigrationFormName.innerText = `Applicant Name: ${applicant.name}`
+    // let immigrationFormName = document.querySelector(`.applicant-name`)
+    // immigrationFormName.innerText = `Applicant Name: ${applicant.name}`
     // we need to append info to infoSection variable
     // Object.values()
-    
   })
 
   applicantLi.append(viewButton)
@@ -82,12 +82,20 @@ function createListItem(applicant) {
   return applicantLi
 }
 
-function createsListItems() {
-  for (const applicant of state.applicants.results) {
+function createsListItems(applicants) {
+  const applicantsList = document.querySelector(".applicant-list")
+  applicantsList.innerHTML = ""
+  for (const applicant of applicants) {
     const applicantLi = createListItem(applicant)
-    const applicantsList = document.querySelector(".applicant-list")
     applicantsList.append(applicantLi)
+    console.log("here is an applicant", applicant)
   }
+  // if applicant id matches id in immigrationDetailsArray then add class
+  const acceptedApplicant = state.immigrationDetailsArray.map(function (
+    acceptedApplicant
+  ) {
+    return acceptedApplicant.applicantName
+  })
 }
 
 function createInfoBox(applicant) {
@@ -120,7 +128,7 @@ function createInfoBox(applicant) {
   infoSection.append(infoBox)
 }
 
-function createImmigrationForm(name) {
+function createImmigrationForm(applicant) {
   actionSection.innerHTML = ""
   const formTitle = document.createElement("form")
   formTitle.innerText = "IMMIGRATION FORM"
@@ -128,7 +136,7 @@ function createImmigrationForm(name) {
 
   const immigrationFormName = document.createElement("h4")
   immigrationFormName.setAttribute("class", "applicant-name")
-  immigrationFormName.innerText = `Applicant Name: `
+  immigrationFormName.innerText = `Applicant Name: ${applicant.name}`
 
   const destinantionLabel = document.createElement("label")
   destinantionLabel.setAttribute("for", "destination")
@@ -202,19 +210,31 @@ function createImmigrationForm(name) {
     event.preventDefault()
 
     const immigrationDetails = {
-      applicantName: state.selectedApplicant,
+      applicantName: state.selectedApplicant.name,
       destination: destinationInput.value,
       "travel-purpose": travelPurposeSelect.value,
       "terrorist-activity": formTitle.terrorist.value,
     }
-    
-    state.immigrationDetailsArray = immigrationDetails
-    console.log(`state.immigrationDetailsArray: `, state)
-    // setState({
-    //   immigrationDetailsArray: [...state.immigrationDetailsArray, immigrationDetails]
-    // })
 
-    //  LEFT OFF HERE. PUSH TO STATE.
+    // state.immigrationDetailsArray = immigrationDetails
+    setState({
+      immigrationDetailsArray: [
+        ...state.immigrationDetailsArray,
+        immigrationDetails,
+      ],
+    })
+    console.log(
+      `state.immigrationDetailsArray: `,
+      state.immigrationDetailsArray
+    )
+    formTitle.reset()
+
+    const state2 = state.applicants.filter(function (targetApplicant) {
+      return targetApplicant.name !== applicant.name
+    })
+    const state3 = [...state2, state.selectedApplicant]
+
+    createsListItems(state3)
   })
 
   formTitle.append(
@@ -231,23 +251,23 @@ function createImmigrationForm(name) {
   actionSection.append(formTitle)
 }
 
-function setState (newState) {
-  state = {...state, ...newState}
+function setState(newState) {
+  state = { ...state, ...newState }
 }
 
 function render() {
   // const main = document.querySelector("main")
   // main.innerHTML = ""
   createList()
-  createImmigrationForm()
-  createsListItems()
+  // createImmigrationForm()
+  createsListItems(state.applicants)
 }
 
 function findHomeworld(applicant) {
   fetch(applicant.homeworld)
     .then(resp => resp.json())
     .then(data => {
-      state.planets = [...state.planets, data]
+      setState({ planets: [...state.planets, data] })
       console.log(state.planets)
       createInfoBox(applicant)
     })
